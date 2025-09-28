@@ -27,13 +27,14 @@ namespace WebApplication1.Controllers
         [HttpGet("find")]
         public IActionResult GetAll()
         {
-            var data = _a.books.ToList();
+            var data = _a.books.AsNoTracking().ToList();
             return Ok(data);
         }
         [HttpGet("find/{id}")]
         public IActionResult GetAll([FromRoute] int id)
         {
-            var data = _a.books.Find(id);
+            var data = _a.books.FromSqlInterpolated($"select *From books where ID={id}").ToList();
+           
             return Ok(data);
         }
         [HttpGet("delete/{id}")]
@@ -43,9 +44,9 @@ namespace WebApplication1.Controllers
             return Ok(data);
         }
         [HttpGet("update/{id}")]
-        public IActionResult update([FromRoute] int id)
+        public async Task<IActionResult>  update([FromRoute] int id)
         {
-            var data = _a.books.Where(x=>x.ID==id).ExecuteUpdate(x=>x.SetProperty(p=>p.Name,p=>p.Name+ "--"));
+            var data = await _a.books.Where(x=>x.ID==id).ExecuteUpdateAsync(x=>x.SetProperty(p=>p.Name,p=>p.Name+ "--"));
             return Ok(data);
         }
     }
